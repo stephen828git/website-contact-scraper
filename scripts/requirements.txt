@@ -1,0 +1,5 @@
+requests>=2.31,<3
+beautifulsoup4>=4.12,<5
+phonenumbers>=8.13,<10
+tldextract>=5,<6
+openpyxl>=3.1,<4

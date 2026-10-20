@@ -1,0 +1,4 @@
+interface:
+  display_name: "网站联系方式爬取"
+  short_description: "抓取官网、展会与会员目录的公开联系方式，去重并保留来源证据"
+  default_prompt: "使用 $website-contact-scraper 抓取我提供的网站公开联系方式，保留来源并导出表格。"
