@@ -1,14 +1,57 @@
 # Website Contact Scraper
 
-一个可安装到 Codex 的网站公开联系方式采集 skill，也可以直接作为 Python 命令行工具运行。
+一个可供 WorkBuddy、Claude Code、Cursor、Codex 等 Agent 使用的网站公开联系方式采集 skill，也可以直接作为 Python 命令行工具运行。
 
 提取公司名称、官网、邮箱、电话、社交链接及网页明确提供的地址，保留来源页面，导出 Excel / CSV。适合单个官网、网址清单、展会展商及企业目录的联系方式整理。
 
-English: A reusable Codex skill and Python CLI for collecting public business contact information, with source URLs and spreadsheet exports. It does not require a paid contact database or API key.
+English: A reusable agent skill and standalone Python CLI for collecting public business contact information, with source URLs and spreadsheet exports. It uses SKILL.md instructions and bundled scripts, and does not require Codex, a paid contact database, or an API key.
 
 ## 下载与安装
 
 需要 Python 3.10 或更新版本。普通网页模式无需浏览器；可选的 PublishersGlobal 适配需要 Google Chrome。
+
+### WorkBuddy
+
+1. [下载完整 ZIP](https://github.com/stephen828git/website-contact-scraper/archive/refs/heads/main.zip)。
+2. 打开 WorkBuddy 左侧的 **专家·技能·连接器 → 技能**，选择 **添加技能 → 上传技能**，导入下载的技能包，并在“已安装”中确认已启用。
+3. 新建任务，直接用自然语言指定技能和目标网站，例如：
+
+```text
+使用 website-contact-scraper 技能，抓取 https://example.com 的公司名、官网和公开联系邮箱，保留来源，导出 Excel。先检查 Python 3.10+ 和所需依赖，缺少的依赖安装到当前任务目录的虚拟环境。
+```
+
+`example.com` 请替换为真实网址。自定义技能包通过上传导入；本项目目前发布在 GitHub，尚未上架 WorkBuddy 技能市场。操作入口以 [WorkBuddy 官方技能说明](https://www.codebuddy.cn/docs/workbuddy/From-Beginner-to-Expert-Guide/Function-Description/Skills-Market) 为准。
+
+若当前客户端无法识别 GitHub ZIP 的外层目录，可解压到任务目录，让 Agent 读取其中的 `SKILL.md`，按下方“其他 Agent”方式运行；保留完整的 `scripts/` 和 `references/`，不要只上传一个 Markdown 文件。
+
+### Claude Code / Cursor
+
+下载并解压完整仓库，将文件夹重命名为 `website-contact-scraper`，再放到对应目录：
+
+| 工具 | 个人技能目录 | 当前项目内的技能目录 |
+| --- | --- | --- |
+| [Claude Code](https://code.claude.com/docs/en/skills) | `~/.claude/skills/website-contact-scraper/` | `.claude/skills/website-contact-scraper/` |
+| [Cursor](https://cursor.com/help/customization/skills) | `~/.cursor/skills/website-contact-scraper/` | `.cursor/skills/website-contact-scraper/` |
+
+`~` 表示用户主目录；项目路径相对于当前项目根目录。目标目录下应直接包含 `SKILL.md`、`scripts/` 和 `references/`。
+
+在 Claude Code 中可以用 `/website-contact-scraper` 加上网址和任务调用；在 Cursor 中可直接要求“使用 website-contact-scraper 技能……”。
+
+### 其他 Agent
+
+即使 Agent 没有自动加载 skill 的功能，只要它能读取本地文件、执行 Python、访问目标网站并保存输出，也可以使用本项目。下载完整仓库到它可访问的任务目录，然后发送：
+
+```text
+请先阅读 /实际路径/website-contact-scraper/SKILL.md，按需读取 references/ 中的说明，使用随附 Python 脚本抓取以下网站的公司名、官网和公开联系邮箱，保留来源并导出 Excel：
+https://example.com
+输出保存在当前任务目录；先检查 Python 3.10+ 和所需依赖。
+```
+
+将路径和网址换成实际值。也可以直接使用下方的 Python 命令行方式。仅能聊天、不能运行代码或联网的 Agent 无法实际执行采集。
+
+`agents/openai.yaml` 是 Codex 的可选界面元数据，Python 脚本不依赖它。不同 Agent 的安装目录和调用语法各有区别，不需要把 Codex 的 `$website-contact-scraper` 写法用于所有工具。
+
+以上安装方式依据各产品官方文档；已验证 Python 脚本在 Windows / Linux、Python 3.10 / 3.13 下通过离线测试，尚未逐一实测各 Agent 客户端的导入界面。
 
 ### 安装到 Codex
 
@@ -51,7 +94,7 @@ $website-contact-scraper 抓取这个展会目录中每家公司的名称、官�
 
 ### 直接运行 Python
 
-不使用 Codex 也可以运行。克隆仓库后，在一个单独的任务目录创建虚拟环境、安装依赖，将输出保存在任务目录。
+不使用任何 Agent 也可以运行。克隆仓库后，在一个单独的任务目录创建虚拟环境、安装依赖，将输出保存在任务目录。
 
 以下命令中的路径需替换为实际安装位置。
 
@@ -88,7 +131,7 @@ python -B -X utf8 /path/to/website-contact-scraper/scripts/scrape_contacts.py --
 | UTF-8 网址 TXT | 按网址批量抓取，可包含 BOM、空行及注释 | 同上 |
 | Bienal São Paulo / CBL | 专用展商、会员目录解析与分页 | `scripts/requirements-directories.txt` |
 | PublishersGlobal | 专用公开名录采集，及基于已核实官网的联系方式补充 | 名录使用 `scripts/requirements-browser.txt`；官网补充使用基础依赖 |
-| 其他展会或动态目录 | Codex 检查结构后在任务目录编写适配 | 按目标网站决定 |
+| 其他展会或动态目录 | 由 Agent 或开发者检查结构后在任务目录编写适配 | 按目标网站决定 |
 
 普通模式默认每站最多尝试 20 页、深度 2、页面间隔 0.5 秒。服务器返回的 HTML 不包含动态内容时，需要另行处理，普通模式不会自动执行 JavaScript。
 
